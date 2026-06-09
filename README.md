@@ -40,10 +40,15 @@ Para atingir os requisitos completos do projeto, realizei comparações de hiper
 **Decisão 1: Modularização e começo pelo problema simples**
 - Decidi dividir o projeto em módulos separados (`network.py`, `activations.py`, `losses.py`, `optimizers.py`). Acredito que isolar as responsabilidades facilitará o desenvolvimento e, principalmente, a implementação de testes manuais em cada função (como verificar as derivadas separadamente).
 - Seguindo a dica do enunciado, pretendo iniciar o teste da classe `MLP` tentando resolver o problema lógico do XOR. Se os gradientes funcionarem para uma rede simples com apenas uma camada oculta no XOR, terei a validação necessária de que a matemática base está correta antes de tentar classificar os 10 dígitos do MNIST.
+
 **Decisão 2: Simplificação matemática na última camada**
 - Ao implementar o *backpropagation*, decidi aproveitar o fato de que a derivada da função de perda Cross-Entropy combinada com a ativação Softmax resulta em uma fórmula incrivelmente simples: a diferença entre as probabilidades preditas e os rótulos reais (`Predição - Real`). Implementar dessa forma evitou cálculos desnecessários e garantiu a estabilidade numérica no cálculo do gradiente da última camada.
 
 **Decisão 3: Validação da arquitetura com o teste do XOR**
 - Após implementar o loop de treinamento (com *mini-batches* e otimizador *SGD* isolado no arquivo `optimizers.py`), rodei um teste inicial com o problema XOR, conforme havia planejado na Decisão 1. A rede convergiu rapidamente e atingiu 100% de acurácia. Ver a loss caindo confirmou que a matemática da propagação do erro (a regra da cadeia aplicada nas matrizes) estava perfeitamente correta. Isso me deu a confiança necessária para finalmente seguir para o dataset do MNIST.
 
-*Mais dificuldades e decisões serão registradas aqui durante a evolução do projeto.*
+**Dificuldade 1: Derivadas e o fluxo do Backpropagation**
+- Um dos maiores desafios foi garantir que o cálculo analítico dos gradientes na propagação do erro (Backpropagation) estava matematicamente correto. Foi necessário prestar muita atenção e fazer testes detalhados com as dimensões das matrizes durante os produtos escalares (`np.dot`) para que a atualização dos pesos funcionasse sem erros de *shape*. Ajudou muito testar as camadas separadamente antes de integrar na rede completa.
+
+**Dificuldade 2: Escala na Inicialização dos Pesos**
+- No início, percebi que se os pesos não fossem inicializados de maneira controlada, a rede poderia ter muita dificuldade em convergir, gerando gradientes que sumiam (*vanishing gradients*) ou explodiam (*exploding gradients*). Ajustar a escala dos números aleatórios gerados pelo NumPy para manter as ativações num limite seguro foi um desafio importante de estabilização do treinamento.
