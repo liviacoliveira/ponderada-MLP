@@ -1,6 +1,6 @@
 # Multi-Layer Perceptron (MLP) do Zero
 
-Esta é uma implementação de um Multi-Layer Perceptron (MLP) desenvolvida do zero utilizando apenas NumPy, como parte da atividade ponderada da semana 7.
+Esta é uma implementação de um Multi-Layer Perceptron (MLP) desenvolvida do zero utilizando apenas NumPy, como atividade ponderada da semana 7.
 
 ## Como rodar
 1. Crie um ambiente virtual e ative-o:
@@ -15,40 +15,39 @@ Esta é uma implementação de um Multi-Layer Perceptron (MLP) desenvolvida do z
 3. Abra o arquivo `notebooks/experimentos.ipynb` no VS Code ou Jupyter, selecione o kernel referente ao `.venv` criado e execute as células.
 
 ## Arquitetura escolhida
-A arquitetura principal foi construída visando um bom balanço entre poder de representação e tempo de treinamento em CPU:
-- **Entrada:** 784 neurônios (vetorização das imagens de 28x28 pixels).
-- **Camadas Ocultas:** Duas camadas densas, com 128 e 64 neurônios, respectivamente.
-- **Saída:** 10 neurônios (um para cada classe de dígito de 0 a 9).
-- **Funções de Ativação:** **ReLU** nas camadas ocultas (rápida de calcular e previne *vanishing gradients*) e **Softmax** na última camada (para saída probabilística).
-- **Otimização:** Descida de Gradiente Estocástica (**SGD**) utilizando mini-batches e a função de perda **Cross-Entropy**.
+A arquitetura principal foi construída visando um bom balanço entre poder de representação e tempo de treinamento em CPU. Abaixo estão as configurações e os motivos de cada escolha:
+- **Entrada (784 neurônios):** Quantidade definida obrigatoriamente para corresponder à vetorização da matriz de 28x28 pixels das imagens do MNIST.
+- **Camadas Ocultas (128 e 64 neurônios):** Optei por duas camadas em um formato de "funil". Essa escolha força a rede a comprimir as informações e extrair as características essenciais gradativamente (aprendizado hierárquico). Os números 128 e 64 mantêm a rede leve para executar rápido apenas em CPU, além de serem potências de 2 (o que em alguns níveis ajuda na otimização de memória dos arrays do NumPy).
+- **Saída (10 neurônios):** Necessário ter um neurônio para cada classe de dígito possível (0 a 9).
+- **Funções de Ativação:** Utilizei a **ReLU** nas camadas ocultas porque sua matemática é muito leve (apenas `max(0, x)`) e ela previne o problema de *vanishing gradients* encontrado na Sigmoid. Para a última camada, usei a **Softmax**, que é essencial para transformar as saídas brutas (*logits*) em uma distribuição de probabilidade onde a soma total é 1, facilitando a escolha da classe correta.
+- **Otimização:** A escolha foi pela **Descida de Gradiente Estocástica (SGD) com mini-batches** (128 amostras) e a perda de **Cross-Entropy**. Escolhi treinar em mini-batches ao invés de amostra-a-amostra (muito ruído) ou no dataset todo de uma vez (muito custo de memória), pois isso equilibra bem a velocidade computacional e a estabilidade da atualização dos pesos. A função de *Cross-Entropy* foi a escolhida porque ela atua perfeitamente junto da Softmax, penalizando fortemente predições confiantes e erradas.
 
 ## Resultados
-Para atingir os requisitos completos do projeto, realizei comparações de hiperparâmetros/arquitetura:
 
-**Experimento 1 (Arquitetura Principal)**
-- **Configuração:** `[784, 128, 64, 10]`, Learning Rate = 0.05, Batch Size = 128, 20 épocas.
-- **Acurácia no Teste:** **96,72%** (Acima da meta de 92% estabelecida!).
-- **Comportamento:** A curva de Loss caiu rápida e estavelmente, comprovando que a escolha do *learning rate* foi ideal para o *batch size* utilizado.
+Para atingir os requisitos completos do projeto, realizei comparações de hiperparâmetros e arquitetura. Os resultados estão resumidos na tabela abaixo:
 
-**Experimento 2 (Comparativo com Rede mais Rasa)**
-- **Configuração:** *Apenas uma camada oculta* `[784, 64, 10]`, Learning Rate = 0.05, Batch Size = 128, 20 épocas.
-- **Resultado no Teste:** **96,17%**.
-- **Conclusão:** Como esperado, a rede com apenas uma camada oculta (e menos neurônios no total) sofreu uma leve queda de desempenho em relação ao modelo com duas camadas ocultas (de 96,72% para 96,17%). Isso demonstra que a profundidade extra do Experimento 1 ajudou a rede a extrair características mais complexas e não lineares das imagens dos dígitos, embora ambos os modelos tenham superado facilmente a meta de 92%.
+| Experimento | Arquitetura | Learning Rate | Batch Size | Épocas | Acurácia no Teste |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **1 (Principal)** | `[784, 128, 64, 10]` | 0.05 | 128 | 20 | **96,72%** |
+| **2 (Rede Rasa)** | `[784, 64, 10]` | 0.05 | 128 | 20 | **96,17%** |
+
+Como esperado, a rede com apenas uma camada oculta sofreu uma leve queda de desempenho (de 96,72% para 96,17%). A profundidade extra do Experimento 1 ajudou a rede a extrair características mais complexas das imagens, porém ambas atingiram o requisito mínimo (≥ 92%).
+
+### Gráficos do Treinamento
+
+**Experimento 1 (Arquitetura Principal):**  
+![Curva Experimento 1](results/curva_experimento1.png)
+
+**Experimento 2 (Rede Rasa):**  
+![Curva Experimento 2](results/curva_experimento2.png)
 
 ## Decisões e dificuldades
 
-**Decisão 1: Modularização e começo pelo problema simples**
-- Decidi dividir o projeto em módulos separados (`network.py`, `activations.py`, `losses.py`, `optimizers.py`). Acredito que isolar as responsabilidades facilitará o desenvolvimento e, principalmente, a implementação de testes manuais em cada função (como verificar as derivadas separadamente).
-- Seguindo a dica do enunciado, pretendo iniciar o teste da classe `MLP` tentando resolver o problema lógico do XOR. Se os gradientes funcionarem para uma rede simples com apenas uma camada oculta no XOR, terei a validação necessária de que a matemática base está correta antes de tentar classificar os 10 dígitos do MNIST.
+**1. Qual foi a decisão técnica mais difícil que você tomou? Por que fez essa escolha?**  
+A decisão técnica mais desafiadora foi garantir a estabilidade do *backpropagation*. Para isso, decidi combinar o cálculo da derivada da *Cross-Entropy Loss* com a função de ativação *Softmax* na última camada. Fiz essa escolha porque matematicamente as derivadas se cancelam e resultam em uma fórmula muito mais simples (apenas a diferença `Predição - Rótulo Real`). Essa decisão me poupou de lidar com cálculos complexos de matrizes Jacobianas e evitou instabilidade numérica que faria o aprendizado travar.
 
-**Decisão 2: Simplificação matemática na última camada**
-- Ao implementar o *backpropagation*, decidi aproveitar o fato de que a derivada da função de perda Cross-Entropy combinada com a ativação Softmax resulta em uma fórmula incrivelmente simples: a diferença entre as probabilidades preditas e os rótulos reais (`Predição - Real`). Implementar dessa forma evitou cálculos desnecessários e garantiu a estabilidade numérica no cálculo do gradiente da última camada.
+**2. O que você tentou que não funcionou? O que aprendeu com isso?**  
+No começo do desenvolvimento, eu tentei iniciar o treinamento com pesos inicializados de forma puramente aleatória (com números muito grandes) ou todos em zero. Isso definitivamente não funcionou: a rede entrava num estado de *vanishing* ou *exploding gradients* e a loss simplesmente não caía. Aprendi na prática a importância fundamental da etapa de inicialização de pesos na modelagem de redes neurais, e como a escala correta dos números gerados é que dita se a rede será capaz de começar a aprender.
 
-**Decisão 3: Validação da arquitetura com o teste do XOR**
-- Após implementar o loop de treinamento (com *mini-batches* e otimizador *SGD* isolado no arquivo `optimizers.py`), rodei um teste inicial com o problema XOR, conforme havia planejado na Decisão 1. A rede convergiu rapidamente e atingiu 100% de acurácia. Ver a loss caindo confirmou que a matemática da propagação do erro (a regra da cadeia aplicada nas matrizes) estava perfeitamente correta. Isso me deu a confiança necessária para finalmente seguir para o dataset do MNIST.
-
-**Dificuldade 1: Derivadas e o fluxo do Backpropagation**
-- Um dos maiores desafios foi garantir que o cálculo analítico dos gradientes na propagação do erro (Backpropagation) estava matematicamente correto. Foi necessário prestar muita atenção e fazer testes detalhados com as dimensões das matrizes durante os produtos escalares (`np.dot`) para que a atualização dos pesos funcionasse sem erros de *shape*. Ajudou muito testar as camadas separadamente antes de integrar na rede completa.
-
-**Dificuldade 2: Escala na Inicialização dos Pesos**
-- No início, percebi que se os pesos não fossem inicializados de maneira controlada, a rede poderia ter muita dificuldade em convergir, gerando gradientes que sumiam (*vanishing gradients*) ou explodiam (*exploding gradients*). Ajustar a escala dos números aleatórios gerados pelo NumPy para manter as ativações num limite seguro foi um desafio importante de estabilização do treinamento.
+**3. Se fosse refazer do zero, o que faria diferente?**  
+Se eu fosse refazer do zero, implementaria imediatamente uma função de *Gradient Check* (aproximação numérica de derivadas) assim que escrevesse a lógica do *backpropagation*, e criaria testes unitários. Gastei um bom tempo debugando erros nas matrizes (problemas com o formato nos produtos internos `np.dot`). Ter uma validação automática pouparia o tempo gasto tentando debugar a matemática analisando as saídas diretamente e eu também experimentaria incluir um otimizador mais avançado, como o Adam, ao invés de usar só o SGD.
