@@ -13,6 +13,10 @@ Esta é uma implementação de um Multi-Layer Perceptron (MLP) desenvolvida do z
    pip install -r requirements.txt
    ```
 3. Abra o arquivo `notebooks/experimentos.ipynb` no VS Code ou Jupyter, selecione o kernel referente ao `.venv` criado e execute as células.
+4. Para validar as partes opcionais do projeto, execute os testes unitários com:
+   ```bash
+   python -m unittest discover -s tests
+   ```
 
 ## Arquitetura escolhida
 A arquitetura principal foi construída visando um bom balanço entre poder de representação e tempo de treinamento em CPU. Abaixo estão as configurações e os motivos de cada escolha:
@@ -21,6 +25,7 @@ A arquitetura principal foi construída visando um bom balanço entre poder de r
 - **Saída (10 neurônios):** Necessário ter um neurônio para cada classe de dígito possível (0 a 9).
 - **Funções de Ativação:** Utilizei a **ReLU** nas camadas ocultas porque sua matemática é muito leve (apenas `max(0, x)`) e ela previne o problema de *vanishing gradients* encontrado na Sigmoid. Para a última camada, usei a **Softmax**, que é essencial para transformar as saídas brutas (*logits*) em uma distribuição de probabilidade onde a soma total é 1, facilitando a escolha da classe correta.
 - **Otimização:** A base do experimento foi a **Descida de Gradiente Estocástica (SGD) com mini-batches** (128 amostras) e a perda de **Cross-Entropy**. Escolhi treinar em mini-batches ao invés de amostra-a-amostra (muito ruído) ou no dataset todo de uma vez (muito custo de memória), pois isso equilibra bem a velocidade computacional e a estabilidade da atualização dos pesos. A função de *Cross-Entropy* foi a escolhida porque ela atua perfeitamente junto da Softmax, penalizando fortemente predições confiantes e erradas. Além disso, implementei o otimizador **Adam** em `mlp/optimizers.py` como uma alternativa adicional para comparar a convergência e a estabilidade do treinamento.
+- **Testes unitários:** Também incluí testes em `tests/test_optimizers.py` e `tests/test_activations.py` para verificar o comportamento do otimizador Adam e das funções ReLU/Softmax e suas derivadas. Essa camada extra ajuda a confirmar que as partes matemáticas principais continuam corretas durante o desenvolvimento.
 
 ## Resultados
 
