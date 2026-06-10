@@ -18,6 +18,31 @@ Esta é uma implementação de um Multi-Layer Perceptron (MLP) desenvolvida do z
    python -m unittest discover -s tests
    ```
 
+## Estrutura do repositório
+
+```text
+.
+├── README.md
+├── requirements.txt
+├── mlp/
+│   ├── __init__.py
+│   ├── activations.py
+│   ├── losses.py
+│   ├── network.py
+│   └── optimizers.py
+├── notebooks/
+│   └── experimentos.ipynb
+├── results/
+│   ├── curva_experimento1.png
+│   ├── curva_experimento2.png
+│   └── matriz_confusao.png
+└── tests/
+    ├── test_activations.py
+    └── test_optimizers.py
+```
+
+Esta estrutura organiza o código da rede em `mlp/`, os experimentos em `notebooks/`, os artefatos gerados em `results/` e os testes de validação em `tests/`.
+
 ## Arquitetura escolhida
 A arquitetura principal foi construída visando um bom balanço entre poder de representação e tempo de treinamento em CPU. Abaixo estão as configurações e os motivos de cada escolha:
 - **Entrada (784 neurônios):** Quantidade definida obrigatoriamente para corresponder à vetorização da matriz de 28x28 pixels das imagens do MNIST.
