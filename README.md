@@ -35,7 +35,9 @@ Esta é uma implementação de um Multi-Layer Perceptron (MLP) desenvolvida do z
 ├── results/
 │   ├── curva_experimento1.png
 │   ├── curva_experimento2.png
-│   └── matriz_confusao.png
+│   ├── matriz_confusao.png
+│   ├── pca_embedding.png
+│   └── hidden_activations_pca.png
 └── tests/
     ├── test_activations.py
     └── test_optimizers.py
@@ -53,6 +55,7 @@ A arquitetura principal foi construída visando um bom balanço entre poder de r
 - **Testes unitários:** Também incluí testes em `tests/test_optimizers.py` e `tests/test_activations.py` para verificar o comportamento do otimizador Adam e das funções ReLU/Softmax e suas derivadas. Essa camada extra ajuda a confirmar que as partes matemáticas principais continuam corretas durante o desenvolvimento.
 - **Gradient check numérico:** No notebook `notebooks/experimentos.ipynb`, adicionei uma verificação numérica dos gradientes para comparar o backpropagation analítico com uma aproximação por diferenças finitas. Essa etapa ajuda a validar a correção dos gradientes antes de usar a rede em treinos maiores.
 - **Visualização de embeddings (PCA):** Também incluí uma visualização de embeddings via PCA no notebook `notebooks/experimentos.ipynb`, usando um espaço 2D para observar como os pontos do MNIST se agrupam por classe. Essa análise complementar ajuda a interpretar a estrutura interna dos dados e a qualidade da representação aprendida.
+- **Visualização das ativações internas:** Incluí uma projeção PCA das ativações da primeira camada oculta da rede. Essa visualização mostra como a representação intermediária da MLP organiza as classes antes da camada de saída, oferecendo uma leitura intuitiva do comportamento interno da rede.
 
 ## Resultados
 
