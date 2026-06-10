@@ -109,16 +109,20 @@ class MLP:
             
         return dW_list, db_list
         
-    def train(self, X, y, epochs, batch_size, learning_rate):
+    def train(self, X, y, epochs, batch_size, learning_rate, optimizer='sgd'):
         """
-        Executa o loop de treinamento da rede em mini-batches usando SGD.
+        Executa o loop de treinamento da rede em mini-batches usando SGD ou Adam.
+
+        :param optimizer: Nome do otimizador a usar ('sgd' ou 'adam').
         """
         from mlp.losses import cross_entropy
-        from mlp.optimizers import sgd
-        
+        from mlp.optimizers import adam, sgd
+
         m = X.shape[0]
         history = {'loss': [], 'accuracy': []}
-        
+        optimizer_state = None
+        t = 0
+
         for epoch in range(epochs):
             # Embaralhar os dados no início de cada época para o mini-batch
             permutation = np.random.permutation(m)
@@ -142,8 +146,20 @@ class MLP:
                 # 3. Backward Pass (Calcular Gradientes)
                 dW_list, db_list = self.backward(y_batch)
                 
-                # 4. Otimização (Atualizar Pesos in-place com SGD)
-                sgd(self.weights, self.biases, dW_list, db_list, learning_rate)
+                # 4. Otimização (Atualizar Pesos in-place com SGD ou Adam)
+                optimizer_name = optimizer.lower()
+                if optimizer_name == 'adam':
+                    optimizer_state, t = adam(
+                        self.weights,
+                        self.biases,
+                        dW_list,
+                        db_list,
+                        learning_rate,
+                        t=t,
+                        optimizer_state=optimizer_state,
+                    )
+                else:
+                    sgd(self.weights, self.biases, dW_list, db_list, learning_rate)
                 
             # Calcular métricas ao final da época (loss média e acurácia total no treino)
             avg_loss = np.mean(epoch_losses)
